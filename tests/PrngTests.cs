@@ -1,10 +1,11 @@
-using System;
 using Xunit;
 
 namespace PSOMapRNGSimulation.Tests;
 
 public class PrngTests
 {
+  private const float floatErrorMargin = 0.000001f;
+  
   [Theory]
   [CsvData("./PrngTestData.csv")]
   public void ReturnsCorrectValues(uint seed, uint expectedSeed, uint expectedOutput)
@@ -15,12 +16,12 @@ public class PrngTests
   }
 
   [Theory]
-  [CsvData("./PrngFloatTestData")]
+  [CsvData("./PrngFloatTestData.csv")]
   public void ReturnsCorrectFloatValue(uint seed, float expectedFloat)
   {
     float output = PsoRng.RngToFloat(ref seed);
     Assert.InRange(output, 0,  1 - float.Epsilon);
-    Assert.InRange(output, expectedFloat - float.Epsilon, expectedFloat + float.Epsilon);
+    Assert.InRange(output, expectedFloat - floatErrorMargin, expectedFloat + floatErrorMargin);
   }
 
   [Theory]

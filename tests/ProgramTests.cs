@@ -47,7 +47,7 @@ public class ProgramTests
   {
     Program.Main(args);
     string? output = _writer.ToString();
-    Assert.StartsWith("error", output?.ToUpper() ?? string.Empty);
+    Assert.StartsWith("error", output?.ToLower() ?? string.Empty);
     Assert.True(HasHelpMessage(output));
   }
 
@@ -57,7 +57,10 @@ public class ProgramTests
     Program.Main(new[] { "", "episode1", "10" });
     string? output = _writer.ToString();
     string firstLine = output?.Split(Environment.NewLine).FirstOrDefault() ?? string.Empty;
-    Assert.Collection(RomData.Ep1Maps, x => Assert.Contains(Enum.GetName(x), firstLine));
+    foreach (var map in RomData.Ep1Maps)
+    {
+      Assert.Contains(Enum.GetName(map), firstLine);
+    }
   }
 
   [Fact]
@@ -66,7 +69,10 @@ public class ProgramTests
     Program.Main(new[] { "", "episode2", "10" });
     string? output = _writer.ToString();
     string firstLine = output?.Split(Environment.NewLine).FirstOrDefault() ?? string.Empty;
-    Assert.Collection(RomData.Ep2Maps, x => Assert.Contains(Enum.GetName(x), firstLine));
+    foreach (var map in RomData.Ep2Maps)
+    {
+      Assert.Contains(Enum.GetName(map), firstLine);
+    }
   }
 
   [Fact]
@@ -75,8 +81,9 @@ public class ProgramTests
     int seedCount = 10;
     Program.Main(new[] { "", "episode1", $"{seedCount}" });
     string? output = _writer.ToString();
-    string[] lines = output?.Split(Environment.NewLine) ?? Array.Empty<string>();
-    Assert.Equal(seedCount + 1, lines.Length);
+    // The last line of the output is empty
+    var lines = output?.Split(Environment.NewLine).SkipLast(1) ?? Array.Empty<string>();
+    Assert.Equal(seedCount + 1, lines.Count());
   }
 
   [Fact]
@@ -84,8 +91,9 @@ public class ProgramTests
   {
     Program.Main(new[] { "", "episode1", "10" });
     string? output = _writer.ToString();
-    string[] lines = output?.Split(Environment.NewLine) ?? Array.Empty<string>();
-    Assert.Collection(lines, x => Assert.Equal(RomData.Ep1Maps.Length * 2 + 1, x.Split(';').Length));
+    // The last line of the output is empty
+    var lines = output?.Split(Environment.NewLine).Skip(1).SkipLast(1) ?? Array.Empty<string>();
+    Assert.All(lines, x => Assert.Equal(RomData.Ep1Maps.Length * 2 + 1, x.Split(';').Length));
   }
 
   [Fact]
@@ -93,28 +101,29 @@ public class ProgramTests
   {
     Program.Main(new[] { "", "episode1", "10" });
     string? output = _writer.ToString();
-    string firstLine = output?.Split(Environment.NewLine).FirstOrDefault() ?? string.Empty;
-    Assert.StartsWith(1.ToString("X8"), firstLine);
+    string secondLine = output?.Split(Environment.NewLine)[1] ?? string.Empty;
+    Assert.StartsWith(1.ToString("X8"), secondLine);
   }
 
   [Fact]
   public void HonorCustomStartingSeed()
   {
-    uint startingSeed = 555;
-    Program.Main(new[] { "", "episode1", "10", $"{startingSeed}" });
+    uint startingSeed = 0x555;
+    Program.Main(new[] { "", "episode1", "10", $"{startingSeed:X8}" });
     string? output = _writer.ToString();
-    string firstLine = output?.Split(Environment.NewLine).FirstOrDefault() ?? string.Empty;
-    Assert.StartsWith(startingSeed.ToString("X8"), firstLine);
+    string secondLine = output?.Split(Environment.NewLine)[1] ?? string.Empty;
+    Assert.StartsWith(startingSeed.ToString("X8"), secondLine);
   }
 
   [Fact]
   public void SeedsAreRolledLogically()
   {
-    uint seed = 555;
-    Program.Main(new[] { "", "episode1", $"{seed}" });
+    uint seed = 0x555;
+    Program.Main(new[] { "", "episode1", "100", $"{seed:X8}" });
     string? output = _writer.ToString();
-    var lines = output?.Split(Environment.NewLine).Skip(1) ?? Array.Empty<string>();
-    Assert.Collection(lines, x =>
+    // The last line of the output is empty
+    var lines = output?.Split(Environment.NewLine).Skip(1).SkipLast(1) ?? Array.Empty<string>();
+    Assert.All(lines, x =>
     {
       Assert.StartsWith(seed.ToString("X8"), x);
       PsoRng.Prng(ref seed);
