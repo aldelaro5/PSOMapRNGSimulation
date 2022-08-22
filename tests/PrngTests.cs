@@ -25,9 +25,9 @@ public class PrngTests
 
   [Theory]
   [CsvData("./PrngMapTestData.csv")]
-  public void GenerateCorrectMap(uint seed, Map map, int expectedVariant, int expectedObjSet)
+  public void GenerateCorrectMap(uint seed, int mapId, int expectedVariant, int expectedObjSet)
   {
-    FloorMap floorMap = PsoRng.GenerateFloorMap(ref seed, map);
+    FloorMap floorMap = PsoRng.GenerateFloorMap(ref seed, (Map)mapId);
     Assert.Equal(expectedVariant, floorMap.Variant);
     Assert.Equal(expectedObjSet, floorMap.ObjSet);
   }

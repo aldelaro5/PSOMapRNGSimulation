@@ -40,12 +40,8 @@ public class CsvDataAttribute : DataAttribute
           case TypeCode.Single:
             testParams.Add(Single.Parse(columns[i]));
             break;
-          case TypeCode.String:
-            testParams.Add(columns[i]);
-            break;
           default:
-            if (type.IsEnum)
-              testParams.Add(Enum.Parse(type, columns[i]));
+            testParams.Add(columns[i]);
             break;
         }
       }
