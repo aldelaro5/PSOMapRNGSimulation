@@ -1,13 +1,10 @@
-name: .NET-Release
+name: .NET-Draft-Release
 
 on: 
   workflow_dispatch:
     inputs:
       name:
         description: 'Version number'
-        required: true
-      notes:
-        description: 'Release notes' 
         required: true
       prerelease:
         description: 'Prerelease'
@@ -51,7 +48,6 @@ jobs:
       run: |
         cp LICENSE publish
         cp README.md publish
-        rm publish/*.pdb
     - name: Archive Release
       uses: thedoctor0/zip-release@main
       with:
@@ -64,6 +60,7 @@ jobs:
         name: ${{ github.event.repository.name }}-${{ matrix.buildName }}
         path: publish/${{ github.event.repository.name }}-${{ matrix.buildName }}.zip
         if-no-files-found: error
+  
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -73,15 +70,12 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         path: artifacts
-    - name: Print
-      run: ls -R artifacts
-    #- name: Release
-    #  uses: softprops/action-gh-release@v1
-    #  with:
-    #    tag_name: v${{ inputs.notes }}
-    #    name: Version ${{ inputs.notes }}
-    #    files: publish/**/*.zip
-    #    draft: true
-    #    body: ${{ inputs.notes }}
-    #    prerelease: ${{ inputs.prerelease }}
-    #    fail_on_unmatched_files: true
+    - name: Draft Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ inputs.name }}
+        name: Version ${{ inputs.name }}
+        files: artifacts/**/*.zip
+        prerelease: ${{ inputs.prerelease }}
+        draft: true
+        fail_on_unmatched_files: true
