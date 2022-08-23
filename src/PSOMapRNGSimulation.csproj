@@ -6,6 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PublishSingleFile>true</PublishSingleFile>
+        <Company>aldelaro5</Company>
+        <AssemblyVersion>1.0.0</AssemblyVersion>
     </PropertyGroup>
 
 </Project>
