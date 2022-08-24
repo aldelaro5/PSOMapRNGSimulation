@@ -29,7 +29,7 @@ public static class PsoRng
   {
     float rngVariant = RngToFloat(ref seed);
     float rngObjSet = RngToFloat(ref seed);
-    return new FloorMap()
+    return new FloorMap
     {
       Variant = (int)(RomData.AllMapinfo[map].NbrVariants * rngVariant),
       ObjSet = (int)(RomData.AllMapinfo[map].NbrObjSet * rngObjSet)
