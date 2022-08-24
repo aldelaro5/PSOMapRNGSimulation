@@ -34,15 +34,16 @@ public class ProgramTests
   }
 
   [Theory]
-  [InlineData("")]
-  [InlineData("", "episode1")]
-  [InlineData("", "episode2")]
-  [InlineData("", "episode1 test")]
-  [InlineData("", "episode2 deadbeef")]
-  [InlineData("", "episode1 0")]
-  [InlineData("", "episode2 -1")]
-  [InlineData("", "episode1 10 test")]
-  [InlineData("", "episode2 10 0xNope")]
+  [InlineData]
+  [InlineData("episode1")]
+  [InlineData("episode2")]
+  [InlineData("0", "100")]
+  [InlineData("episode1", "test")]
+  [InlineData("episode2", "deadbeef")]
+  [InlineData("episode1", "0")]
+  [InlineData("episode2", "-1")]
+  [InlineData("episode1", "10", "test")]
+  [InlineData("episode2", "10", "0xNope")]
   public void PrintsErrorAndHelpForInvalidArguments(params string[] args)
   {
     Program.Main(args);
@@ -54,7 +55,7 @@ public class ProgramTests
   [Fact]
   public void PrintsCorrectMapNamesInHeaderForEpisode1()
   {
-    Program.Main(new[] { "", "episode1", "10" });
+    Program.Main(new[] { "episode1", "10" });
     string? output = _writer.ToString();
     string firstLine = output?.Split(Environment.NewLine).FirstOrDefault() ?? string.Empty;
     foreach (var map in RomData.Ep1Maps)
@@ -66,7 +67,7 @@ public class ProgramTests
   [Fact]
   public void PrintsCorrectMapNamesInHeaderForEpisode2()
   {
-    Program.Main(new[] { "", "episode2", "10" });
+    Program.Main(new[] { "episode2", "10" });
     string? output = _writer.ToString();
     string firstLine = output?.Split(Environment.NewLine).FirstOrDefault() ?? string.Empty;
     foreach (var map in RomData.Ep2Maps)
@@ -79,7 +80,7 @@ public class ProgramTests
   public void PrintsCorrectAmountOfLines()
   {
     int seedCount = 10;
-    Program.Main(new[] { "", "episode1", $"{seedCount}" });
+    Program.Main(new[] { "episode1", $"{seedCount}" });
     string? output = _writer.ToString();
     // The last line of the output is empty
     var lines = output?.Split(Environment.NewLine).SkipLast(1) ?? Array.Empty<string>();
@@ -89,7 +90,7 @@ public class ProgramTests
   [Fact]
   public void PrintsCorrectAmountOfColumns()
   {
-    Program.Main(new[] { "", "episode1", "10" });
+    Program.Main(new[] { "episode1", "10" });
     string? output = _writer.ToString();
     // The last line of the output is empty
     var lines = output?.Split(Environment.NewLine).Skip(1).SkipLast(1) ?? Array.Empty<string>();
@@ -99,7 +100,7 @@ public class ProgramTests
   [Fact]
   public void DefaultStartingSeedIsCorrect()
   {
-    Program.Main(new[] { "", "episode1", "10" });
+    Program.Main(new[] { "episode1", "10" });
     string? output = _writer.ToString();
     string secondLine = output?.Split(Environment.NewLine)[1] ?? string.Empty;
     Assert.StartsWith(1.ToString("X8"), secondLine);
@@ -109,7 +110,7 @@ public class ProgramTests
   public void HonorCustomStartingSeed()
   {
     uint startingSeed = 0x555;
-    Program.Main(new[] { "", "episode1", "10", $"{startingSeed:X8}" });
+    Program.Main(new[] { "episode1", "10", $"{startingSeed:X8}" });
     string? output = _writer.ToString();
     string secondLine = output?.Split(Environment.NewLine)[1] ?? string.Empty;
     Assert.StartsWith(startingSeed.ToString("X8"), secondLine);
@@ -119,7 +120,7 @@ public class ProgramTests
   public void SeedsAreRolledLogically()
   {
     uint seed = 0x555;
-    Program.Main(new[] { "", "episode1", "100", $"{seed:X8}" });
+    Program.Main(new[] { "episode1", "100", $"{seed:X8}" });
     string? output = _writer.ToString();
     // The last line of the output is empty
     var lines = output?.Split(Environment.NewLine).Skip(1).SkipLast(1) ?? Array.Empty<string>();
