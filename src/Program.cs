@@ -42,27 +42,34 @@ public static class Program
 
   private static ProgArgs ParseArgs(string[] args)
   {
-    if (args.Length == 2 && args[1].ToLower() == "help")
+    if (args.Length == 1 && args[0].ToLower() == "help")
       return new ProgArgs { Help = true };
 
-    if (args.Length < 3)
+    if (args.Length < 2)
       throw new ArgumentException("Not enough arguments, review the syntax below");
 
     ProgArgs progArgs = new ProgArgs();
-    if (!Enum.TryParse(args[1], true, out progArgs.Episode))
+    // Enum.TryParse works on integer which shouldn't be allowed
+    if (int.TryParse(args[0], out _) || !Enum.TryParse(args[0], true, out progArgs.Episode))
+    {
+      throw new ArgumentException($"Invalid episode, specify either \"{Enum.GetName(Episode.Episode1)!.ToLower()}\"" +
+                                  $" or \"{Enum.GetName(Episode.Episode2)!.ToLower()}\"");
+    }
+    
+    if (!Enum.TryParse(args[0], true, out progArgs.Episode))
     {
       throw new ArgumentException($"Invalid episode, specify either \"{Enum.GetName(Episode.Episode1)!.ToLower()}\"" +
                                   $" or \"{Enum.GetName(Episode.Episode2)!.ToLower()}\"");
     }
 
-    if (!long.TryParse(args[2], out progArgs.SeedCount))
+    if (!long.TryParse(args[1], out progArgs.SeedCount))
       throw new ArgumentException("Invalid seed count");
     if (progArgs.SeedCount < 1)
       throw new ArgumentException($"The seed count has to be at least 1");
 
-    if (args.Length > 3)
+    if (args.Length > 2)
     {
-      if (!uint.TryParse(args[3].ToUpper().Replace("0X", ""), NumberStyles.HexNumber, CultureInfo.InvariantCulture,
+      if (!uint.TryParse(args[2].ToUpper().Replace("0X", ""), NumberStyles.HexNumber, CultureInfo.InvariantCulture,
             out progArgs.StartSeed))
         throw new ArgumentException("Invalid starting seed, it must be in hexadecimal");
     }
